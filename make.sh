@@ -1,0 +1,1 @@
+gcc main.c main.h simulations.c simulations.h queue.c queue.h -o sim -lm
