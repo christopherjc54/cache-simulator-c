@@ -14,4 +14,4 @@
  - The file `garbage/stuff.c` contains an alternative way to read in the file and process the trace data.
    - Known Bugs:
      - readFileToString(): none
-     - convertDataFromStr(): there are 2 extra reads (presumably by `strtok_r()`) starting after the allocated copy of the input file (still work normally if the program is run using `valgrind`)
+     - convertDataFromStr(): there are 2 extra reads (presumably by `strtok_r()`) starting after the allocated copy of the input file (still works normally if the program is run using `valgrind`)
