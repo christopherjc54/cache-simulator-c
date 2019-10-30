@@ -36,6 +36,7 @@ Queue* readFile(char* fileName) {
     return fileContents;
 }
 
+//WARNING: destructive to file contents!
 Queue* convertData(Queue* fileContents) {
     Queue* traceData = createQueue();
     char *line1, *line2, *line3;
