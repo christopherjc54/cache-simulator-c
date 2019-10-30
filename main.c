@@ -22,7 +22,7 @@ Queue* readFile(char* fileName) {
     }
 
     while ((read = getline(&line, &len, fp)) != -1) {
-        m_line = malloc(strlen(line));
+        m_line = malloc(strlen(line)+1);
         if(m_line == NULL) {
             printf("failed to malloc string for next line of file\n");
             exit(-1);
@@ -40,7 +40,7 @@ Queue* convertData(Queue* fileContents) {
     Queue* traceData = createQueue();
     char *line1, *line2, *line3;
     traceItem *item;
-    char *tmpRAW, tmp[3];
+    char *tmpRAW, tmp[2];
 
     while(!isEmpty(fileContents)) {
         line1 = (char*) dequeue(fileContents);
@@ -55,10 +55,16 @@ Queue* convertData(Queue* fileContents) {
             printf("failed to malloc trace item\n");
             exit(-1);
         }
+        tmpRAW = (char*) malloc(10); //only need 6
+        if(tmpRAW == NULL) {
+            printf("failed to malloc tmpRAW\n");
+            exit(-1);
+        }
         sscanf(line1, "%*s %s %x", tmpRAW, &item->addrOfInstr);
         tmp[0] = tmpRAW[1];
         tmp[1] = tmpRAW[2];
         tmp[2] = '\0';
+        free(tmpRAW);
         item->lenOfInstr = (int) strtol(tmp, NULL, 16);
         sscanf(line2, "%*s %x %*s %*s %x", &item->dstM, &item->srcM);
         free(line1);
@@ -141,11 +147,14 @@ int main(int argc, char* argv[]) {
     
     //read in file
     Queue* fileContents = readFile(trace_file_name); //queue consists of (char*) void* to each line
+    printFileContents_dummySimulation(fileContents); //prints file contents
 
     //process file
-    //printFileContents_dummySimulation(fileContents); //prints file contents
     Queue* traceData = convertData(fileContents);
     printTraceData_dummySimulation(traceData);
+
+    //free trace data
+    freeQueue(traceData);
 
     //initialize variables for output report
     int total_blocks = ((cache_size*1024) / block_size) / 1024; //in KB

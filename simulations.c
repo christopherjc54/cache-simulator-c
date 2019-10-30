@@ -3,32 +3,36 @@
 //functions
 
 //prints file contents
-//WARNING: destructive to file contents!
 void printFileContents_dummySimulation(Queue* fileContents) {
-    char* line;
-
-    while(!isEmpty(fileContents)) {
-        line = (char*) dequeue(fileContents);
-        printf("%s", line);
-        free(line);
+    if(fileContents == NULL) {
+        printf("error: fileContents is NULL\n");
+        exit(-1);
     }
+    LLNode* current = fileContents->qFront;
 
-    free(fileContents);
+    printf("PRINTING FILE CONTENTS\n\n");
+    while(current != NULL) {
+        printf("%s", (char*) current->qt);
+        current = current->pNext;
+    }
+    printf("PRINTING COMPLETE\n\n");
 }
 
 //prints trace data structure
-//WARNING: destructive to file contents!
 void printTraceData_dummySimulation(Queue* traceData) {
+    if(traceData == NULL) {
+        printf("error: traceData is NULL\n");
+        exit(-1);
+    }
+    LLNode* current = traceData->qFront;
     traceItem* item;
 
     printf("PRINTING DATA STRUCT\n\n");
-    while(!isEmpty(traceData)) {
-        item = (traceItem*) dequeue(traceData);
+    while(current != NULL) {
+        item = (traceItem*) current->qt;
         printf("lenOfInstr:  %-8x  dstM: %-8x\naddrOfInstr: %-8x  srcM: %-8x\n\n", item->lenOfInstr, item->dstM, item->addrOfInstr, item->srcM);
         //printf("lenOfInstr: %-8x\taddrOfInstr: %x\ndstM:       %-8x\tsrcM:        %-8x\n\n", item->lenOfInstr, item->addrOfInstr, item->dstM, item->srcM);
-        free(item);
+        current = current->pNext;
     }
     printf("PRINTING COMPLETE\n\n");
-
-    free(traceData);
 }

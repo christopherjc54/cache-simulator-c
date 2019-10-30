@@ -22,10 +22,13 @@ Queue *createQueue( )
  * input: a pointer to a Queue
  * output: none
  *
- * frees the given Queue pointer.  Also, you should remember to free the elements in the linked list!
+ * frees the given Queue and all its contents
  */
 void freeQueue( Queue *pq )
 {
+    while(!isEmpty(pq)) {
+        free(dequeue(pq));
+    }
     free(pq);
 }
 
@@ -59,6 +62,7 @@ queueType dequeue( Queue *pq )
     if( isEmpty( pq ) )
     {
         /* no element to return */
+        printf("error: queue empty\n");
         return NULL;
     }
     temp = pq->qFront;
