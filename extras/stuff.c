@@ -26,7 +26,7 @@ Queue* convertDataFromStr(char* fileContents) {
     Queue* traceData = createQueue();
     char *line1, *line2, *line3;
     traceItem *item;
-    char *tmpRAW, tmp[3];
+    char tmpRAW[5], tmp[2];
 
     if(fileContents == NULL) return -1;
     char* last;

@@ -36,16 +36,25 @@ Queue* readFile(char* fileName) {
     return fileContents;
 }
 
-//WARNING: destructive to file contents!
+//WARNING: destructive to fileContents!
 Queue* convertData(Queue* fileContents) {
     Queue* traceData = createQueue();
-    char *line1, *line2, *line3;
+    char *line1 = NULL, *line2, *line3;
     traceItem *item;
-    char *tmpRAW, tmp[2];
+    char tmpRAW[5], tmp[2];
+    bool firstEntry = true;
 
     while(!isEmpty(fileContents)) {
-        line1 = (char*) dequeue(fileContents);
-        if(strcmp(line1, "") == 0) {
+        if(firstEntry) {
+            do {
+                if(line1) free(line1);
+                line1 = (char*) dequeue(fileContents);
+            } while(strcmp(line1, "\n") == 0 || strcmp(line1, "\r\n") == 0);
+            firstEntry = false;
+        } else {
+            line1 = (char*) dequeue(fileContents);
+        }
+        if(strcmp(line1, "") == 0 || strcmp(line1, "\n") == 0 || strcmp(line1, "\r\n") == 0) {
             free(line1);
             break;
         }
@@ -56,16 +65,10 @@ Queue* convertData(Queue* fileContents) {
             printf("failed to malloc trace item\n");
             exit(-1);
         }
-        tmpRAW = (char*) malloc(10); //only need 6
-        if(tmpRAW == NULL) {
-            printf("failed to malloc tmpRAW\n");
-            exit(-1);
-        }
         sscanf(line1, "%*s %s %x", tmpRAW, &item->addrOfInstr);
         tmp[0] = tmpRAW[1];
         tmp[1] = tmpRAW[2];
         tmp[2] = '\0';
-        free(tmpRAW);
         item->lenOfInstr = (int) strtol(tmp, NULL, 16);
         sscanf(line2, "%*s %x %*s %*s %x", &item->dstM, &item->srcM);
         free(line1);
