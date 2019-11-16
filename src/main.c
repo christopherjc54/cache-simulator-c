@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
     
     //read in file
     Queue* fileContents = readFile(args->trace_file_name); //queue consists of (char*) void* to each line
-    printFileContents(fileContents); //prints file contents
+    // printFileContents(fileContents); //prints file contents
 
     //process file
     Queue* traceData = convertData(fileContents);
@@ -100,9 +100,6 @@ int main(int argc, char* argv[]) {
 
     //run simulation
     runSimulation(traceData, args, vars);
-
-    //free trace data
-    freeQueue(traceData);
 
     //print output report
     printf("Cache Size: %d KB\n", args->cache_size);
@@ -116,11 +113,17 @@ int main(int argc, char* argv[]) {
     printf("Index Size: %d bits, Total Indices: %d KB\n", vars->index_size, vars->total_indices);
     printf("Overhead Memory Size: %d bytes (or %d KB), Implementation Memory Size: %d (or %d KB)\n\n", 
         vars->overhead_memory_size*1024, vars->overhead_memory_size, 
-        vars->implementation_memory_size, vars->implementation_memory_size/1024);
+        vars->implementation_memory_size*1024, vars->implementation_memory_size);
     
     printf("----- Results -----\n");
     printf("Cache Hit Rate: %.1f %%\n", vars->cache_hit_rate);
     printf("CPI: %.1f cycles/instruction\n\n", vars->cpi);
 
+    //free dynamically allocated memory
+    freeQueue(traceData);
+    free(args);
+    free(vars);
+
+    printf("PROGRAM COMPLETE\n");
     return 0;
 }

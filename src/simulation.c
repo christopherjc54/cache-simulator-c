@@ -1,4 +1,4 @@
-#include "simulations.h"
+#include "simulation.h"
 
 //functions
 void runSimulation(Queue* traceData, argStruct* args, varStruct* vars) {

@@ -38,7 +38,7 @@ typedef struct traceItem {
 #include <string.h>
 #include <math.h>
 #include "data.h"
-#include "simulations.h"
+#include "simulation.h"
 #include "queue.h"
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef _simulations_h
-#define _simulations_h
+#ifndef _simulation_h
+#define _simulation_h
 
 #include <stdio.h> //for debug and error testing
 #include "queue.h"
