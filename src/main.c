@@ -11,9 +11,8 @@ int main(int argc, char* argv[]) {
         handleIncorrectUsage();
     }
 
-    argStruct* args = (argStruct*) malloc(sizeof(argStruct));
-
     //initialize argument variables
+    argStruct* args = (argStruct*) malloc(sizeof(argStruct));
     args->trace_file_name = NULL;
     args->cache_size = NULL; //in KB
     args->block_size = NULL; //in bytes
@@ -36,7 +35,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    //set defaults if needed
+    //set defaults if needed and check for out of bound inputs
     //TODO: comment out printf's and add (default) after variables in input report :(
     bool usedDefault = false;
     if(args->trace_file_name == NULL) handleIncorrectUsage();
@@ -45,24 +44,37 @@ int main(int argc, char* argv[]) {
         if(!usedDefault) printf("\n");
         usedDefault = true;
         printf("Cache size not specified, using default of 1024KB.\n");
+    } else if(args->cache_size < 1 || args->cache_size > 8*1024) {
+        printf("error: cache size out of bounds\n");
+        exit(-1);
     }
     if(args->block_size == NULL) {
         args->block_size = 16;
         if(!usedDefault) printf("\n");
         usedDefault = true;
         printf("Block size not specified, using default of 16 bytes.\n");
+    } else if(args->block_size < 4 || args->block_size > 64) {
+        printf("error: block size out of bounds\n");
+        exit(-1);
     }
     if(args->associativity == NULL) {
         args->associativity = 2;
         if(!usedDefault) printf("\n");
         usedDefault = true;
         printf("Associativity not specified, using default of 2.\n");
+    //checks if associativity is within bounds and a power of 2
+    } else if(args->associativity < 1 || args->associativity > 16 || checkPower(args->associativity, 2)) {
+        printf("error: associativity out of bounds\n");
+        exit(-1);
     }
     if(args->replacement_policy == NULL) {
         args->replacement_policy = "RR";
         if(!usedDefault) printf("\n");
         usedDefault = true;
         printf("Replacement policy not specified, using default of RR (Round Robin).\n");
+    } else if(strcmp(args->replacement_policy, "RR") != 0 && strcmp(args->replacement_policy, "RND") != 0 && strcmp(args->replacement_policy, "LRU") != 0) {
+        printf("error: unknown replacement policy specified\n");
+        exit(-1);
     }
     if(usedDefault) printf("\n");
 
@@ -75,15 +87,13 @@ int main(int argc, char* argv[]) {
     }
     printf("\nTrace File: %s\nCache Size: %d\nBlock Size: %d\nAssociativity: %d\nR-Policy: %s\n\n", args->trace_file_name, args->cache_size, args->block_size, args->associativity, args->replacement_policy);
 
-    varStruct* vars = (varStruct*) malloc(sizeof(varStruct));
-
     //initialize variables for output report
+    varStruct* vars = (varStruct*) malloc(sizeof(varStruct));
     vars->total_blocks = ((args->cache_size*1024) / args->block_size) / 1024; //in KB
-    vars->index_size = round ( log10( (args->cache_size*1024) / (args->associativity * args->block_size) )/log10(2) ); //bits
-    vars->offset_size = round( log10(args->block_size)/log10(2) ); //bits
+    vars->index_size = round(log( (args->cache_size*1024) / (args->associativity * args->block_size) )/log(2)); //bits
+    vars->offset_size = round(log(args->block_size)/log(2)); //bits
     vars->tag_size = 32 - vars->offset_size - vars->index_size; //bits
     vars->total_indices = pow(2, vars->index_size) / 1024; //in KB
-    //TODO: verify calculations for overhead & implementation memory sizes
     vars->overhead_memory_size = ( (1+vars->tag_size)*args->associativity * vars->total_indices ) / 8; //in bytes
     vars->implementation_memory_size = (vars->total_blocks * args->block_size) + vars->overhead_memory_size; //in bytes
 
@@ -96,7 +106,7 @@ int main(int argc, char* argv[]) {
 
     //process file
     Queue* traceData = convertData(fileContents);
-    printTraceData(traceData);
+    // printTraceData(traceData);
 
     //run simulation
     runSimulation(traceData, args, vars);
@@ -108,7 +118,7 @@ int main(int argc, char* argv[]) {
     printf("Policy: %s\n\n", args->replacement_policy);
 
     printf("----- Calculated Value -----\n");
-    printf("Total #Blocks: %d KB (2^%d)\n", vars->total_blocks, (int) round(log10(vars->total_blocks*1024)/log10(2)) );
+    printf("Total #Blocks: %d KB (2^%d)\n", vars->total_blocks, (int) round(log(vars->total_blocks*1024)/log(2)) );
     printf("Tag Size: %d bits\n", vars->tag_size);
     printf("Index Size: %d bits, Total Indices: %d KB\n", vars->index_size, vars->total_indices);
     printf("Overhead Memory Size: %d bytes (or %d KB), Implementation Memory Size: %d (or %d KB)\n\n", 
@@ -126,4 +136,13 @@ int main(int argc, char* argv[]) {
 
     printf("PROGRAM COMPLETE\n");
     return 0;
+}
+
+bool checkPower(int number, int power) {
+    return setPrecision(round(log(number)/log(power)), 2) != setPrecision(log(number)/log(power), 2);
+}
+
+double setPrecision(double number, int precision) {
+    int factor = pow(10, precision);
+    return floor(number*factor)/factor;
 }

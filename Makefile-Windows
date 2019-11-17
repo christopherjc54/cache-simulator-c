@@ -1,10 +1,18 @@
 all:
-	gcc src/main.c src/data.c src/queue.c src/simulation.c -o output/Sim.exe -lm
+	gcc src/main.c src/data.c src/queue.c src/simulation.c src/cache.c -o output/Sim.exe -lm
 allw:
-	gcc src/main.c src/data.c src/queue.c src/simulation.c -o output/Sim.exe -lm -w
+	gcc src/main.c src/data.c src/queue.c src/simulation.c src/cache.c -o output/Sim.exe -lm -w
 runtiny:
 	"output/Sim.exe" -f "$(CURDIR)/traces/TinyTrace.trc"
 runtest:
 	"output/Sim.exe" -f "$(CURDIR)/traces/TestTrace.trc"
+runcorruption:
+	"output/Sim.exe" -f "$(CURDIR)/traces/Corruption1.trc"
+run1a:
+	"output/Sim.exe" -f "$(CURDIR)/traces/Trace1A.trc"
+run2a:
+	"output/Sim.exe" -f "$(CURDIR)/traces/Trace2A.trc"
+runa9:
+	"output/Sim.exe" -f "$(CURDIR)/traces/A-9_new 1.5.pdf.trc"
 clean:
 	del output /f /q

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-//TODO: set queueType here (i.e. item*)
+//set queueType here (i.e. item*)
 #define queueType void*
 
 typedef struct LLNode
