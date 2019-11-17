@@ -1,8 +1,8 @@
 all:
-	mkdir output > NUL
+	if not exist output mkdir output > NUL
 	gcc src/main.c src/data.c src/queue.c src/simulation.c src/cache.c -o output/Sim.exe -lm -w
 allwarn:
-	mkdir output > NUL
+	if not exist output mkdir output > NUL
 	gcc src/main.c src/data.c src/queue.c src/simulation.c src/cache.c -o output/Sim.exe -lm
 runtiny:
 	"output/Sim.exe" -f "$(CURDIR)/traces/TinyTrace.trc"
