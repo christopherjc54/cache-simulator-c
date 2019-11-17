@@ -4,11 +4,17 @@
 ## Status
  - Reads in files correctly.
  - Processes data correctly.
- - Input and output format is mostly correct.
+ - Input and output format is essentially correct.
    - professor suggested that the default notifications be printed as `(default)` after each corresponding printed input instead
+ - Cache is created successfully.
+ - Simulation runs successfully, but correctness hasn't been verified and calculations are a work in progress.
+ - No leaks! 🙂
 
 ## Known Bugs
- - After much sweat and tears, none.
+ - Linux
+   - After much sweat and tears, none. Verified using `valgrind`.
+ - Windows
+   - Crashes during simulation execution, I suspect this has to do with high RAM allocation since `valgrind` found no bugs.
  
 ## Extras
  - The file `extras/stuff.c` contains an alternative way to read in the file and process the trace data.
