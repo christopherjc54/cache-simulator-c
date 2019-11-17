@@ -1,7 +1,9 @@
 all:
-	gcc src/main.c src/data.c src/queue.c src/simulation.c src/cache.c -o output/sim -lm
-allw:
+	mkdir output > /dev/null
 	gcc src/main.c src/data.c src/queue.c src/simulation.c src/cache.c -o output/sim -lm -w
+allwarn:
+	mkdir output > /dev/null
+	gcc src/main.c src/data.c src/queue.c src/simulation.c src/cache.c -o output/sim -lm
 runtiny:
 	output/sim -f "$(CURDIR)/traces/TinyTrace.trc"
 runtest:
@@ -15,4 +17,4 @@ run2a:
 runa9:
 	output/sim -f "$(CURDIR)/traces/A-9_new 1.5.pdf.trc"
 clean:
-	rm output/* -f
+	rm output/* -f  > /dev/null
