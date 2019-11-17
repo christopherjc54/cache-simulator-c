@@ -5,13 +5,15 @@ void runSimulation(Queue* traceData, argStruct* args, varStruct* vars) {
 
     //initialize cache
     cacheStruct* cache = initializeCache(vars->total_indices*1024, args->associativity);
-    printf("malloc'd %d rows in cache with %d blocks each\n\n", vars->total_indices*1024, args->associativity);
+    printf("malloc'd %d rows in cache with %d blocks each (~%d KBs)\n\n", 
+        vars->total_indices*1024, args->associativity, 
+        (int) round( (double) (sizeof(cacheStruct) 
+            + (sizeof(rowStruct)*vars->total_indices*1024) 
+            + (sizeof(blockStruct)*args->associativity * (vars->total_indices*1024))) / 1024)); //actual cache implementation size in KB
 
     traceItem* item;
-    int cacheHits = 0;
-    int cacheMisses = 0;
-    int totalCycles = 0;
-    int totalInstructions = 0;
+    int cacheHits = 0, compulsoryMisses = 0, conflictMisses = 0;
+    int totalCycles = 0, totalInstructions = 0;
     int numberOfReads;
 
     //go through instructions
@@ -34,11 +36,7 @@ void runSimulation(Queue* traceData, argStruct* args, varStruct* vars) {
             //TODO: figure out what happens on a cache hit
             cacheHits++;
             totalCycles++;
-        } else {
-            //replace block
-            cacheMisses++;
-            //TODO: implement number of reads for cache miss
-            numberOfReads = 0;
+        } else { //miss
             //pick a block for replacement
             if(strcmp(args->replacement_policy, "RR") == 0) {
                 if(row->lastUsedIndex == -1 || row->lastUsedIndex + 1 == args->associativity) {
@@ -55,8 +53,11 @@ void runSimulation(Queue* traceData, argStruct* args, varStruct* vars) {
                 addOneTimeToAll(row);
                 block->timeSinceLastUse = 0;
             }
+            if(block->valid == false) compulsoryMisses++;
+            else conflictMisses++;
             block->tag = tag;
             block->valid = true;
+            numberOfReads = args->block_size/4; //block size in bytes divided by 4-byte reads
             totalCycles += 3 * numberOfReads;
         }
 
@@ -74,7 +75,8 @@ void runSimulation(Queue* traceData, argStruct* args, varStruct* vars) {
     }
 
     //save results
-    printf("total cycles: %d cache hits: %d cache misses: %d\ntotal instructions: %d\n\n", totalCycles, cacheHits, cacheMisses, totalInstructions);
+    printf("total cycles: %d\ncache hits: %d cache misses: %d\ncompulsory misses: %d conflict misses %d \ntotal instructions: %d\n\n", 
+        totalCycles, cacheHits, compulsoryMisses + conflictMisses, compulsoryMisses, conflictMisses, totalInstructions);
     vars->cache_hit_rate = (double) cacheHits/totalInstructions * 100;
     vars->cpi = (double) totalCycles/totalInstructions;
 

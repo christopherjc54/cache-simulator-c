@@ -7,7 +7,6 @@ cacheStruct* initializeCache(int totalIndices, int associativity) {
         exit(-1);
     }
     cache->firstRow = NULL;
-    cache->lastUsedBlock = NULL;
     
     int i, j;
     bool firstRow = true, firstBlock;
@@ -18,7 +17,7 @@ cacheStruct* initializeCache(int totalIndices, int associativity) {
     for(i=0; i < totalIndices; i++) {
         row = (rowStruct*) malloc(sizeof(rowStruct));
         if(cache == NULL) {
-            printf("error: failed to malloc row\n");
+            printf("error: failed to malloc row %d\n", i);
             freeCache(cache);
             exit(-1);
         }
@@ -38,7 +37,7 @@ cacheStruct* initializeCache(int totalIndices, int associativity) {
         for(j=0; j < associativity; j++) {
             block = (blockStruct*) malloc(sizeof(blockStruct));
             if(cache == NULL) {
-                printf("error: failed to malloc block\n");
+                printf("error: failed to malloc row %d, block %d\n", i, j);
                 freeCache(cache);
                 exit(-1);
             }

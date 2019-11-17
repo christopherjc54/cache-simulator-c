@@ -10,7 +10,6 @@ typedef struct blockStruct blockStruct;
 
 typedef struct cacheStruct {
     rowStruct* firstRow;
-    blockStruct* lastUsedBlock;
 } cacheStruct;
 
 typedef struct rowStruct {
