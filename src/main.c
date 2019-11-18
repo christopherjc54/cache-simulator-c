@@ -62,8 +62,7 @@ int main(int argc, char* argv[]) {
         if(!usedDefault) printf("\n");
         usedDefault = true;
         printf("Associativity not specified, using default of 2.\n");
-    //checks if associativity is within bounds and a power of 2
-    } else if(args->associativity < 1 || args->associativity > 16 || checkPower(args->associativity, 2)) {
+    } else if(args->associativity < 1 || args->associativity > 16 || checkNumberIsPower(args->associativity, 2) == false) {
         printf("error: associativity out of bounds\n");
         exit(-1);
     }
@@ -138,8 +137,8 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-bool checkPower(int number, int power) {
-    return setPrecision(round(log(number)/log(power)), 2) != setPrecision(log(number)/log(power), 2);
+bool checkNumberIsPower(int number, int power) {
+    return setPrecision(round(log(number)/log(power)), 2) == setPrecision(log(number)/log(power), 2);
 }
 
 double setPrecision(double number, int precision) {

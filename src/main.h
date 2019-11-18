@@ -41,7 +41,7 @@ typedef struct traceItem {
 #include "simulation.h"
 #include "queue.h"
 
-bool checkPower(int number, int power);
+bool checkNumberIsPower(int number, int power);
 double setPrecision(double number, int precision);
 
 #endif
