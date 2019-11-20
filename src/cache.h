@@ -7,6 +7,8 @@
 
 typedef struct rowStruct rowStruct;
 typedef struct blockStruct blockStruct;
+typedef struct argStruct argStruct;
+typedef struct varStruct varStruct;
 
 typedef struct cacheStruct {
     rowStruct* firstRow;
@@ -26,6 +28,7 @@ typedef struct blockStruct {
 } blockStruct;
 
 //function prototypes
+
 cacheStruct* initializeCache(int totalIndices, int associativity);
 rowStruct* getRowByIndex(cacheStruct* cache, int index);
 blockStruct* getBlockByIndex(rowStruct* row, int index);

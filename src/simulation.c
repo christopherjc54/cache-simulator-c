@@ -1,41 +1,36 @@
 #include "simulation.h"
 
-void runSimulation(Queue* traceData, argStruct* args, varStruct* vars) {
-    printf("STARTING SIMULATION\n\n");
+// for number of blocks accessed per instruction statistics
+int* numBlkAcsCnt;
+int maxNumBlkAcsCnt = 2 +1; //+1 for zero-index
 
-    //initialize cache
-    cacheStruct* cache = initializeCache(vars->total_indices*1024, args->associativity);
-    printf("malloc'd %d rows in cache with %d blocks each (~%d KBs)\n\n", 
-        vars->total_indices*1024, args->associativity, 
-        (int) round( (double) (sizeof(cacheStruct) 
-            + (sizeof(rowStruct)*vars->total_indices*1024) 
-            + (sizeof(blockStruct)*args->associativity * (vars->total_indices*1024))) / 1024)); //actual cache implementation size in KB
+void accessCache(cacheStruct* cache, argStruct* args, varStruct* vars, int address, int bytesRead, resultDataStruct* resDt) {
+    // [     TAG      |  INDEX  | OFFSET ]
+    int tag = address >> (vars->index_size + vars->offset_size);
+    int index = (address & (0xFFFFFFFF >> 32 - (vars->index_size + vars->offset_size))) >> vars->offset_size;
+    int offset = address & (0xFFFFFFFF >> 32 - (vars->offset_size));
+    // printf("Trace Data Address: 0x%X\n", address);
+    // printf("Tag: 0x%X Index: 0x%X Offset: 0x%X\n\n", tag, index, offset);
 
-    traceItem* item;
-    int cacheHits = 0, compulsoryMisses = 0, conflictMisses = 0;
-    int totalCycles = 0, totalInstructions = 0;
-    int numberOfReads;
+    int i;
+    int numBlocksAccessed = (int) ceil((double) ((double) (offset + bytesRead)/args->block_size ));
 
-    //go through instructions
-    while(!isEmpty(traceData)) {
-        // printf("made it here\n");
-        item = (traceItem*) dequeue(traceData);
+    int diff = numBlocksAccessed - (maxNumBlkAcsCnt - 1); //(account for zero-index)
+    if(diff > 0) {
+        numBlocksAccessed = (int*) realloc(numBlocksAccessed, sizeof(int)*(maxNumBlkAcsCnt + diff));
+        for(i=0; i < diff; i++) numBlkAcsCnt[maxNumBlkAcsCnt + i] = 0;
+        maxNumBlkAcsCnt += diff;
+    }
+    numBlkAcsCnt[numBlocksAccessed]++;
 
-        // [     TAG      |  INDEX  | OFFSET ]
-        int tag = item->addrOfInstr >> (vars->index_size + vars->offset_size);
-        int index = (item->addrOfInstr & (0xFFFFFFFF >> 32 - (vars->index_size + vars->offset_size))) >> vars->offset_size;
-        int offset = item->addrOfInstr & (0xFFFFFFFF >> 32 - (vars->offset_size));
-        // printf("Trace Data Address: 0x%X\n", item->addrOfInstr);
-        // printf("Tag: 0x%X Index: 0x%X Offset: 0x%X\n\n", tag, index, offset);
-
+    for(i=0; i < numBlocksAccessed; i++) {
         rowStruct* row = getRowByIndex(cache, index);
         blockStruct* block = getBlockByTag(row, tag, args->associativity);
 
         //check for hit
-        if(block != NULL && block->valid == true) {
-            //TODO: figure out what happens on a cache hit
-            cacheHits++;
-            totalCycles++;
+        if(block != NULL && block->valid == true) { //hit
+            resDt->cacheHits++;
+            resDt->totalCycles += 1;
         } else { //miss
             //pick a block for replacement
             if(strcmp(args->replacement_policy, "RR") == 0) {
@@ -53,33 +48,64 @@ void runSimulation(Queue* traceData, argStruct* args, varStruct* vars) {
                 addOneTimeToAll(row);
                 block->timeSinceLastUse = 0;
             }
-            if(block->valid == false) compulsoryMisses++;
-            else conflictMisses++;
+            if(block->valid == false) resDt->compulsoryMisses++;
+            else resDt->conflictMisses++;
             block->tag = tag;
             block->valid = true;
-            numberOfReads = args->block_size/4; //block size in bytes divided by 4-byte reads
-            totalCycles += 3 * numberOfReads;
+            resDt->totalCycles += 3;
         }
 
-        //TODO: figure out what this is for
-        item->lenOfInstr;
+        resDt->totalCacheAccesses++;
+        index += 1;
+    }
+}
 
-        //TODO: figure out what this is for
-        if(item->srcM != 0); // read  // assume 4 bytes for all data accesses
-        if(item->dstM != 0); // write
+resultDataStruct* runSimulation(Queue* traceData, argStruct* args, varStruct* vars) {
+    printf("STARTING SIMULATION\n\n");
 
-        if(item->srcM != 0 || item->dstM != 0) totalCycles += 2;
-        totalCycles += 2;
-        totalInstructions++;
+    //initialize cache
+    cacheStruct* cache = initializeCache(vars->total_indices*1024, args->associativity);
+    printf("malloc'd %d rows in cache with %d blocks each (~%d KBs)\n\n", 
+        vars->total_indices*1024, args->associativity, 
+        (int) round( (double) (sizeof(cacheStruct) 
+            + (sizeof(rowStruct)*vars->total_indices*1024) 
+            + (sizeof(blockStruct)*args->associativity * (vars->total_indices*1024))) / 1024)); //actual cache implementation size in KB
+
+    int i;
+    traceItem* item;
+    numBlkAcsCnt = (int*) malloc(sizeof(int)*maxNumBlkAcsCnt);
+    for(i=0; i < maxNumBlkAcsCnt; i++) numBlkAcsCnt[i] = 0;
+
+    resultDataStruct* resDt = (resultDataStruct*) malloc(sizeof(resultDataStruct));
+    resDt->cacheHits = 0, resDt->compulsoryMisses = 0, resDt->conflictMisses = 0;
+    resDt->totalCycles = 0, resDt->totalInstructions = 0, resDt->totalCacheAccesses = 0;
+
+    //go through instructions
+    while(!isEmpty(traceData)) {
+        item = (traceItem*) dequeue(traceData);
+
+        accessCache(cache, args, vars, item->addrOfInstr, item->lenOfInstr, resDt); // instruction access
+        if(item->srcM != 0) accessCache(cache, args, vars, item->srcM, 4, resDt); // read data, assuming 4 bytes for all data accesses
+        if(item->dstM != 0) accessCache(cache, args, vars, item->dstM, 4, resDt); // write data, assuming 4 bytes for all data accesses
+
+        if(item->srcM != 0 || item->dstM != 0) resDt->totalCycles += 2;
+        resDt->totalCycles += 2;
+        resDt->totalInstructions++;
         free(item);
     }
 
+    //show number of blocks accessed per instruction statistics
+    for(i=1; i < maxNumBlkAcsCnt; i++) 
+        printf("%d block%s accessed %d time%s in a single instruction\n", 
+            i, (i != 1 ? "s" : ""), numBlkAcsCnt[i], (numBlkAcsCnt[i] != 1 ? "s" : ""));
+    printf("\n");
+
     //save results
-    printf("total cycles: %d\ncache hits: %d cache misses: %d\ncompulsory misses: %d conflict misses %d \ntotal instructions: %d\n\n", 
-        totalCycles, cacheHits, compulsoryMisses + conflictMisses, compulsoryMisses, conflictMisses, totalInstructions);
-    vars->cache_hit_rate = (double) cacheHits/totalInstructions * 100;
-    vars->cpi = (double) totalCycles/totalInstructions;
+    vars->cache_hit_rate = (double) resDt->cacheHits/resDt->totalCacheAccesses * 100;
+    vars->cpi = (double) resDt->totalCycles/resDt->totalInstructions;
 
     freeCache(cache);
+    free(numBlkAcsCnt);
     printf("SIMULATION COMPLETE\n\n");
+    return resDt;
 }

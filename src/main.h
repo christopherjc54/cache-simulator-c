@@ -3,7 +3,13 @@
 
 #pragma pack(1) //compiler directive to compact memory usage
 
-//structs have to be before the includes to prevent some weird cross-referencing issue for the function prototype in simulations.h
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "data.h"
+#include "queue.h"
+#include "simulation.h"
 
 typedef struct argStruct {
     char* trace_file_name;
@@ -26,22 +32,11 @@ typedef struct varStruct {
     double cpi; //cycles per instruction
 } varStruct;
 
-typedef struct traceItem {
-    int lenOfInstr;
-    int addrOfInstr;
-    int dstM;
-    int srcM;
-} traceItem;
+//function prototypes
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include "data.h"
-#include "simulation.h"
-#include "queue.h"
-
-bool checkNumberIsPower(int number, int power);
-double setPrecision(double number, int precision);
+void handleIncorrectUsage(char* errorMessage);
+int main(int argc, char* argv[]);
+bool numberIsPower(int number, int power);
+double lowerPrecision(double number, int precision);
 
 #endif

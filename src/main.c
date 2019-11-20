@@ -1,14 +1,23 @@
 #include "main.h"
 
-void handleIncorrectUsage() {
-    printf("\nInvalid number of arguments. Please launch using\nSim.exe -f trace1.txt -s 1024 -b 16 -a 2 -r RR\n\n-f <trace file name> [ name of text file with the trace ]\n-s <cache size in KB> [ 1 KB to 8 MB ]\n-b <block size> [ 4 bytes to 64 bytes ]\n-a <associativity> [ 1, 2, 4, 8, 16 ]\n-r <replacement policy> [ RR, RND, or LRU ]\n\n");
+void handleIncorrectUsage(char* errorMessage) {
+
+    printf("\n%s Please launch using:\n", errorMessage);
+    printf("sim -f trace1.txt -s 1024 -b 16 -a 2 -r RR\n\n");
+
+    printf("-f <trace file name> [ name of text file with the trace ]\n");
+    printf("-s <cache size in KB> [ 1 KB to 8 MB ]\n");
+    printf("-b <block size> [ 4 bytes to 64 bytes ]\n");
+    printf("-a <associativity> [ 1, 2, 4, 8, 16 ]\n");
+    printf("-r <replacement policy> [ RR, RND, or LRU ]\n\n");
+
     exit(-1);
 }
 
 int main(int argc, char* argv[]) {
     //check for correct usage
     if(argc % 2 == 0 || argc < 3 || argc > 11) {
-        handleIncorrectUsage();
+        handleIncorrectUsage("Invalid number of arguments.");
     }
 
     //initialize argument variables
@@ -36,16 +45,15 @@ int main(int argc, char* argv[]) {
     }
 
     //set defaults if needed and check for out of bound inputs
-    //TODO: comment out printf's and add (default) after variables in input report :(
     bool usedDefault = false;
-    if(args->trace_file_name == NULL) handleIncorrectUsage();
+    if(args->trace_file_name == NULL) handleIncorrectUsage("Trace file name not provided.");
     if(args->cache_size == NULL) {
         args->cache_size = 1024;
         if(!usedDefault) printf("\n");
         usedDefault = true;
         printf("Cache size not specified, using default of 1024KB.\n");
     } else if(args->cache_size < 1 || args->cache_size > 8*1024) {
-        printf("error: cache size out of bounds\n");
+        handleIncorrectUsage("Cache size out of bounds.");
         exit(-1);
     }
     if(args->block_size == NULL) {
@@ -54,7 +62,7 @@ int main(int argc, char* argv[]) {
         usedDefault = true;
         printf("Block size not specified, using default of 16 bytes.\n");
     } else if(args->block_size < 4 || args->block_size > 64) {
-        printf("error: block size out of bounds\n");
+        handleIncorrectUsage("Block size out of bounds.");
         exit(-1);
     }
     if(args->associativity == NULL) {
@@ -62,8 +70,8 @@ int main(int argc, char* argv[]) {
         if(!usedDefault) printf("\n");
         usedDefault = true;
         printf("Associativity not specified, using default of 2.\n");
-    } else if(args->associativity < 1 || args->associativity > 16 || checkNumberIsPower(args->associativity, 2) == false) {
-        printf("error: associativity out of bounds\n");
+    } else if(args->associativity < 1 || args->associativity > 16 || numberIsPower(args->associativity, 2) == false) {
+        handleIncorrectUsage("Associativity out of bounds.");
         exit(-1);
     }
     if(args->replacement_policy == NULL) {
@@ -71,20 +79,22 @@ int main(int argc, char* argv[]) {
         if(!usedDefault) printf("\n");
         usedDefault = true;
         printf("Replacement policy not specified, using default of RR (Round Robin).\n");
-    } else if(strcmp(args->replacement_policy, "RR") != 0 && strcmp(args->replacement_policy, "RND") != 0 && strcmp(args->replacement_policy, "LRU") != 0) {
-        printf("error: unknown replacement policy specified\n");
+    } else if(strcmp(args->replacement_policy, "RR") != 0 
+           && strcmp(args->replacement_policy, "RND") != 0 
+           && strcmp(args->replacement_policy, "LRU") != 0) {
+        handleIncorrectUsage("Unknown replacement policy specified.");
         exit(-1);
     }
     if(usedDefault) printf("\n");
 
     //print input report
     printf("Cache Simulator CS 3853 Spring 2019 - Group #%d\n\nCmd Line: ", 9);
-    //TODO: find out if we print the exe argument too
     for(i=1; i<argc; i++) {
         printf("%s", argv[i]);
         if(i < argc-1) printf(" ");
     }
-    printf("\nTrace File: %s\nCache Size: %d\nBlock Size: %d\nAssociativity: %d\nR-Policy: %s\n\n", args->trace_file_name, args->cache_size, args->block_size, args->associativity, args->replacement_policy);
+    printf("\nTrace File: %s\nCache Size: %d\nBlock Size: %d\nAssociativity: %d\nR-Policy: %s\n\n", 
+        args->trace_file_name, args->cache_size, args->block_size, args->associativity, args->replacement_policy);
 
     //initialize variables for output report
     varStruct* vars = (varStruct*) malloc(sizeof(varStruct));
@@ -101,14 +111,14 @@ int main(int argc, char* argv[]) {
     
     //read in file
     Queue* fileContents = readFile(args->trace_file_name); //queue consists of (char*) void* to each line
-    // printFileContents(fileContents); //prints file contents
+    // printFileContents(fileContents);
 
     //process file
     Queue* traceData = convertData(fileContents);
     // printTraceData(traceData);
 
     //run simulation
-    runSimulation(traceData, args, vars);
+    resultDataStruct* resDt = runSimulation(traceData, args, vars);
 
     //print output report
     printf("Cache Size: %d KB\n", args->cache_size);
@@ -124,6 +134,13 @@ int main(int argc, char* argv[]) {
         vars->overhead_memory_size*1024, vars->overhead_memory_size, 
         vars->implementation_memory_size*1024, vars->implementation_memory_size);
     
+    printf("----- Simulation Statistics -----\n");
+    printf("Total Cache Accesses:\t%d\n", resDt->totalCacheAccesses);
+    printf("Cache Hits:\t\t%d\n", resDt->cacheHits);
+    printf("Cache Misses:\t\t%d\n", resDt->totalCacheAccesses - resDt->cacheHits);
+    printf("--- Compulsory Misses:\t%d\n", resDt->compulsoryMisses);
+    printf("--- Conflict Misses:\t%d\n\n", resDt->conflictMisses);
+
     printf("----- Results -----\n");
     printf("Cache Hit Rate: %.1f %%\n", vars->cache_hit_rate);
     printf("CPI: %.1f cycles/instruction\n\n", vars->cpi);
@@ -133,15 +150,15 @@ int main(int argc, char* argv[]) {
     free(args);
     free(vars);
 
-    printf("PROGRAM COMPLETE\n");
+    printf("PROGRAM COMPLETE\n\n");
     return 0;
 }
 
-bool checkNumberIsPower(int number, int power) {
-    return setPrecision(round(log(number)/log(power)), 2) == setPrecision(log(number)/log(power), 2);
+bool numberIsPower(int number, int power) {
+    return lowerPrecision(round(log(number)/log(power)), 2) == lowerPrecision(log(number)/log(power), 2);
 }
 
-double setPrecision(double number, int precision) {
+double lowerPrecision(double number, int precision) {
     int factor = pow(10, precision);
     return floor(number*factor)/factor;
 }

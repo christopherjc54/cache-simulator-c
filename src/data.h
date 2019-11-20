@@ -1,11 +1,18 @@
 #ifndef _data_h
 #define _data_h
 
-#include <stdio.h> //for debug and error testing
+#include <stdio.h>
 #include "queue.h"
 #include "main.h"
 
 #define ssize_t signed long long //isn't defined in my compiler's libraries for some reason, but size_t is??
+
+typedef struct traceItem {
+    int lenOfInstr;
+    int addrOfInstr;
+    int dstM;
+    int srcM;
+} traceItem;
 
 //function prototypes
 
