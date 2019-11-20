@@ -95,8 +95,8 @@ int main(int argc, char* argv[]) {
             usedDefault = true;
             printf("Replacement policy not specified, using default of RR (Round Robin).\n");
         } else if(strcmp(args->replacement_policy, "RR") != 0 
-            && strcmp(args->replacement_policy, "RND") != 0 
-            && strcmp(args->replacement_policy, "LRU") != 0) {
+               && strcmp(args->replacement_policy, "RND") != 0 
+               && strcmp(args->replacement_policy, "LRU") != 0) {
             handleIncorrectUsage("Unknown replacement policy specified.");
             exit(-1);
         }
@@ -168,7 +168,7 @@ int main(int argc, char* argv[]) {
 
     //free dynamically allocated memory
     freeQueue(traceData);
-    free(resDt->numBlkAcsCnt);
+    free(resDt->numBlkAcsCntArry);
     free(resDt);
     free(args);
     free(vars);

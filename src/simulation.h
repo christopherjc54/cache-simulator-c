@@ -21,7 +21,7 @@ typedef struct resultDataStruct {
     int totalInstructions;
     int totalCacheAccesses;
 
-    int* numBlkAcsCntArry; //number of block accesses per instruction count
+    int* numBlkAcsCntArry; //number of block accesses per instruction count array
     int maxNumBlkAcs; //maximum number of block accesses for all instructions
 } resultDataStruct;
 
