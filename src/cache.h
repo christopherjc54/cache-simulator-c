@@ -7,8 +7,6 @@
 
 typedef struct rowStruct rowStruct;
 typedef struct blockStruct blockStruct;
-typedef struct argStruct argStruct;
-typedef struct varStruct varStruct;
 
 typedef struct cacheStruct {
     rowStruct* firstRow;
