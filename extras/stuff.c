@@ -1,7 +1,13 @@
-/*
-    char* fileContentsStr = readFileToString(trace_file_name);
+/* function prototyptes
+    //alternative method to get data
+    char* readFileToString(char* fileName);
+    Queue* convertDataFromStr(char* fileContents);
+*/
+
+/* code to use them
+    //alternative method to read in data
+    char* fileContentsStr = readFileToString(args->trace_file_name);
     Queue* traceData = convertDataFromStr(fileContentsStr);
-    free(fileContentsStr);
 */
 
 //reads in entire file into one string
@@ -26,7 +32,7 @@ Queue* convertDataFromStr(char* fileContents) {
     Queue* traceData = createQueue();
     char *line1, *line2, *line3;
     traceItem *item;
-    char tmpRAW[5], tmp[2];
+    char tmpRAW[6], tmp[3];
 
     if(fileContents == NULL) return -1;
     char* last;
@@ -39,20 +45,18 @@ Queue* convertDataFromStr(char* fileContents) {
             printf("failed to malloc trace item\n");
             exit(-1);
         }
-        tmpRAW = (char*) malloc(10); //only need 6
-        if(tmpRAW == NULL) {
-            printf("failed to malloc tmpRAW\n");
-            exit(-1);
-        }
         sscanf(line1, "%*s %s %x", tmpRAW, &item->addrOfInstr);
         tmp[0] = tmpRAW[1];
         tmp[1] = tmpRAW[2];
         tmp[2] = '\0';
-        free(tmpRAW);
         item->lenOfInstr = (int) strtol(tmp, NULL, 16);
         sscanf(line2, "%*s %x %*s %*s %x", &item->dstM, &item->srcM);
+        if(line1 != NULL) free(line1);
+        if(line2 != NULL) free(line2);
+        if(line3 != NULL) free(line3);
         enqueue(traceData, (void*) item);
     }
 
+    free(fileContents);
     return traceData;
 }

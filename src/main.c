@@ -147,6 +147,7 @@ int main(int argc, char* argv[]) {
 
     //free dynamically allocated memory
     freeQueue(traceData);
+    free(resDt);
     free(args);
     free(vars);
 

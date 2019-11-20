@@ -36,7 +36,7 @@ Queue* convertData(Queue* fileContents) {
     Queue* traceData = createQueue();
     char *line1 = NULL, *line2, *line3;
     traceItem *item;
-    char tmpRAW[5], tmp[2];
+    char tmpRAW[6], tmp[3];
     bool firstEntry = true;
 
     while(!isEmpty(fileContents)) {
