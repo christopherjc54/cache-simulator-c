@@ -106,7 +106,6 @@ resultDataStruct* runSimulation(Queue* traceData, argStruct* args, varStruct* va
     vars->cpi = (double) resDt->totalCycles/resDt->totalInstructions;
 
     freeCache(cache);
-    free(resDt->numBlkAcsCnt);
     printf("SIMULATION COMPLETE\n\n");
     return resDt;
 }
