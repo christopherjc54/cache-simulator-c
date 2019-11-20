@@ -1,11 +1,5 @@
 #include "simulation.h"
 
-// for number of blocks accessed per instruction statistics
-int* numBlkAcsCnt; //number of block accesses per instruction count
-                   //(i.e. numBlkAcsCnt[1] = 5, 1 block access per instruction occured 5 times)
-int maxNumBlkAcsCnt = 2 +1; //maximum number of block accesses for all instructions
-                            //+1 for zero-index
-
 void accessCache(cacheStruct* cache, argStruct* args, varStruct* vars, int address, int bytesRead, resultDataStruct* resDt) {
     // [     TAG      |  INDEX  | OFFSET ]
     int tag = address >> (vars->index_size + vars->offset_size);
@@ -17,13 +11,13 @@ void accessCache(cacheStruct* cache, argStruct* args, varStruct* vars, int addre
     int i;
     int numBlocksAccessed = (int) ceil( (double) (offset + bytesRead)/args->block_size );
 
-    int diff = numBlocksAccessed - (maxNumBlkAcsCnt - 1); //(account for zero-index)
+    int diff = numBlocksAccessed - (resDt->maxNumBlkAcsCnt - 1); //(account for zero-index)
     if(diff > 0) {
-        numBlocksAccessed = (int*) realloc(numBlocksAccessed, sizeof(int)*(maxNumBlkAcsCnt + diff));
-        for(i=0; i < diff; i++) numBlkAcsCnt[maxNumBlkAcsCnt + i] = 0;
-        maxNumBlkAcsCnt += diff;
+        numBlocksAccessed = (int*) realloc(numBlocksAccessed, sizeof(int)*(resDt->maxNumBlkAcsCnt + diff));
+        for(i=0; i < diff; i++) resDt->numBlkAcsCnt[resDt->maxNumBlkAcsCnt + i] = 0;
+        resDt->maxNumBlkAcsCnt += diff;
     }
-    numBlkAcsCnt[numBlocksAccessed]++;
+    resDt->numBlkAcsCnt[numBlocksAccessed]++;
 
     for(i=0; i < numBlocksAccessed; i++) {
         rowStruct* row = getRowByIndex(cache, index);
@@ -75,12 +69,17 @@ resultDataStruct* runSimulation(Queue* traceData, argStruct* args, varStruct* va
 
     int i;
     traceItem* item;
-    numBlkAcsCnt = (int*) malloc(sizeof(int)*maxNumBlkAcsCnt);
-    for(i=0; i < maxNumBlkAcsCnt; i++) numBlkAcsCnt[i] = 0;
 
     resultDataStruct* resDt = (resultDataStruct*) malloc(sizeof(resultDataStruct));
     resDt->cacheHits = 0, resDt->compulsoryMisses = 0, resDt->conflictMisses = 0;
     resDt->totalCycles = 0, resDt->totalInstructions = 0, resDt->totalCacheAccesses = 0;
+
+    // for number of blocks accessed per instruction statistics
+    resDt->numBlkAcsCnt = (int*) malloc(sizeof(int)*resDt->maxNumBlkAcsCnt); //number of block accesses per instruction count
+                                                                      //(i.e. numBlkAcsCnt[1] = 5, 1 block access per instruction occured 5 times)
+    resDt->maxNumBlkAcsCnt = 2 +1; //maximum number of block accesses for all instructions
+                                   //+1 for zero-index 
+    for(i=0; i < resDt->maxNumBlkAcsCnt; i++) resDt->numBlkAcsCnt[i] = 0;
 
     //process instructions
     while(!isEmpty(traceData)) {
@@ -97,9 +96,9 @@ resultDataStruct* runSimulation(Queue* traceData, argStruct* args, varStruct* va
     }
 
     //show number of blocks accessed per instruction statistics
-    for(i=1; i < maxNumBlkAcsCnt; i++) 
+    for(i=1; i < resDt->maxNumBlkAcsCnt; i++) 
         printf("%d block%s accessed %d time%s in a single instruction\n", 
-            i, (i != 1 ? "s" : ""), numBlkAcsCnt[i], (numBlkAcsCnt[i] != 1 ? "s" : ""));
+            i, (i != 1 ? "s" : ""), resDt->numBlkAcsCnt[i], (resDt->numBlkAcsCnt[i] != 1 ? "s" : ""));
     printf("\n");
 
     //save results
@@ -107,7 +106,7 @@ resultDataStruct* runSimulation(Queue* traceData, argStruct* args, varStruct* va
     vars->cpi = (double) resDt->totalCycles/resDt->totalInstructions;
 
     freeCache(cache);
-    free(numBlkAcsCnt);
+    free(resDt->numBlkAcsCnt);
     printf("SIMULATION COMPLETE\n\n");
     return resDt;
 }

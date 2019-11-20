@@ -20,6 +20,9 @@ typedef struct resultDataStruct {
     int totalCycles;
     int totalInstructions;
     int totalCacheAccesses;
+
+    int* numBlkAcsCnt; //number of block accesses per instruction count
+    int maxNumBlkAcsCnt; //maximum number of block accesses for all instructions
 } resultDataStruct;
 
 //function prototypes
