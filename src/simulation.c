@@ -13,7 +13,7 @@ void accessCache(cacheStruct* cache, argStruct* args, varStruct* vars, int addre
 
     int diff = numBlocksAccessed - (resDt->maxNumBlkAcs - 1); //(account for zero-index)
     if(diff > 0) {
-        numBlocksAccessed = (int*) realloc(numBlocksAccessed, sizeof(int)*(resDt->maxNumBlkAcs + diff));
+        resDt->numBlkAcsCntArry = (int*) realloc(resDt->numBlkAcsCntArry, sizeof(int)*(resDt->maxNumBlkAcs + diff));
         for(i=0; i < diff; i++) resDt->numBlkAcsCntArry[resDt->maxNumBlkAcs + i] = 0;
         resDt->maxNumBlkAcs += diff;
     }
@@ -75,10 +75,10 @@ resultDataStruct* runSimulation(Queue* traceData, argStruct* args, varStruct* va
     resDt->totalCycles = 0, resDt->totalInstructions = 0, resDt->totalCacheAccesses = 0;
 
     // for number of blocks accessed per instruction statistics
-    resDt->numBlkAcsCntArry = (int*) malloc(sizeof(int)*resDt->maxNumBlkAcs); //number of block accesses per instruction count
-                                                                              //(i.e. numBlkAcsCnt[1] = 5, 1 block access per instruction occured 5 times)
     resDt->maxNumBlkAcs = 2 +1; //maximum number of block accesses for all instructions
                                 //+1 for zero-index
+    resDt->numBlkAcsCntArry = (int*) malloc(sizeof(int)*resDt->maxNumBlkAcs); //number of block accesses per instruction count
+                                                                              //(i.e. numBlkAcsCnt[1] = 5, 1 block access per instruction occured 5 times)
     for(i=0; i < resDt->maxNumBlkAcs; i++) resDt->numBlkAcsCntArry[i] = 0;
 
     //process instructions

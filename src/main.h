@@ -20,11 +20,11 @@ typedef struct argStruct {
 } argStruct;
 
 typedef struct varStruct {
-    int total_blocks; //in KB
+    int total_blocks;
     int index_size; //bits
     int offset_size; //bits
     int tag_size; //bits
-    int total_indices; //in KB
+    int total_indices;
     int overhead_memory_size; //in bytes
     int implementation_memory_size; //in bytes
 

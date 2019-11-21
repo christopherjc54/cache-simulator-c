@@ -53,12 +53,15 @@ int main(int argc, char* argv[]) {
 
     //set defaults if needed and check for out of bound inputs
     bool usedDefault = false;
+    varStruct* vars; //declared here so it can be free'd after use
     if(args->trace_file_name == NULL) {
         handleIncorrectUsage("Trace file name not provided.");
         usedDefault = true; //removes extra newline before printing defaults
         setDefaults();
         doCacheMath();
         showCalculatedValues();
+        free(args);
+        free(vars);
         exit(-1);
     }
     void setDefaults() {
@@ -112,15 +115,14 @@ int main(int argc, char* argv[]) {
     printf("\nTrace File: %s\nCache Size: %d\nBlock Size: %d\nAssociativity: %d\nR-Policy: %s\n\n", 
         args->trace_file_name, args->cache_size, args->block_size, args->associativity, args->replacement_policy);
 
-    varStruct* vars; //presumably, this works because the variable is added to the stack when main() is called
     void doCacheMath() {
         //initialize variables for output report
         vars = (varStruct*) malloc(sizeof(varStruct));
-        vars->total_blocks = ((args->cache_size*1024) / args->block_size) / 1024; //in KB
+        vars->total_blocks = ((args->cache_size*1024) / args->block_size);
         vars->index_size = round(log( (args->cache_size*1024) / (args->associativity * args->block_size) )/log(2)); //bits
         vars->offset_size = round(log(args->block_size)/log(2)); //bits
         vars->tag_size = 32 - vars->offset_size - vars->index_size; //bits
-        vars->total_indices = pow(2, vars->index_size) / 1024; //in KB
+        vars->total_indices = pow(2, vars->index_size);
         vars->overhead_memory_size = ( (1+vars->tag_size)*args->associativity * vars->total_indices ) / 8; //in bytes
         vars->implementation_memory_size = (vars->total_blocks * args->block_size) + vars->overhead_memory_size; //in bytes
 
@@ -147,9 +149,9 @@ int main(int argc, char* argv[]) {
 
     void showCalculatedValues() {
         printf("----- Calculated Value -----\n");
-        printf("Total #Blocks: %d KB (2^%d)\n", vars->total_blocks, (int) round(log(vars->total_blocks*1024)/log(2)) );
+        printf("Total #Blocks: %d (2^%d)\n", vars->total_blocks, (int) round(log(vars->total_blocks)/log(2)) );
         printf("Tag Size: %d bits\n", vars->tag_size);
-        printf("Index Size: %d bits, Total Indices: %d KB\n", vars->index_size, vars->total_indices);
+        printf("Index Size: %d bits, Total Indices: %d\n", vars->index_size, vars->total_indices);
         printf("Overhead Memory Size: %d bytes (or %d KB), Implementation Memory Size: %d (or %d KB)\n\n", 
             vars->overhead_memory_size*1024, vars->overhead_memory_size, 
             vars->implementation_memory_size*1024, vars->implementation_memory_size);
@@ -164,6 +166,7 @@ int main(int argc, char* argv[]) {
 
     printf("----- Results -----\n");
     printf("Cache Hit Rate: %.1f %%\n", vars->cache_hit_rate);
+    printf("Cache Miss Rate: %.1f %%\n", 100 - vars->cache_hit_rate);
     printf("CPI: %.1f cycles/instruction\n\n", vars->cpi);
 
     //free dynamically allocated memory
