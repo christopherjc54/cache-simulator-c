@@ -9,12 +9,14 @@
  - Cache is created successfully.
  - Simulation runs successfully, verified that calculations are pretty much correct if not exact.
  - No leaks! 🙂
+ - Automated output of results to CSV file works correctly.
+ - Multithreading of automated output works correctly.
 
 ## Known Bugs
  - Linux
    - After much sweat and tears, none. Verified using `valgrind`.
  - Windows
-   - None. Fixed a small bug where the null terminator was written one byte out of bounds.
+   - None.
  
 ## Extras
  - The file `extras/stuff.c` contains an alternative way to read in the file and process the trace data.
