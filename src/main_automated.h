@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <pthread.h>
 #include "data.h"
 #include "queue.h"
 #include "simulation.h"
@@ -32,10 +33,17 @@ typedef struct varStruct {
     double cpi; //cycles per instruction
 } varStruct;
 
+typedef struct threadDataBlock {
+    argStruct* args;
+    varStruct* vars;
+    resultDataStruct* resDt;
+} threadDataBlock;
+
 //function prototypes
 
 void handleIncorrectUsage(char* errorMessage);
 int main(int argc, char* argv[]);
 resultDataStruct* runProgram(argStruct* args, varStruct* vars);
+void* programThread(void* threadData);
 
 #endif
