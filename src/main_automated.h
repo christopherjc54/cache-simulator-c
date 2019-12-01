@@ -43,7 +43,6 @@ typedef struct threadDataBlock {
 
 void handleIncorrectUsage(char* errorMessage);
 int main(int argc, char* argv[]);
-resultDataStruct* runProgram(argStruct* args, varStruct* vars);
 void* programThread(void* threadData);
 
 #endif

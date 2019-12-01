@@ -15,7 +15,7 @@ void handleIncorrectUsage(char* errorMessage) {
 }
 
 int main(int argc, char* argv[]) {
-    int i, j, k, l, m, n; //counter variables
+    int i, j, k, l, m, n;
 
     //handle incorrect usage
     if(argc % 2 == 0 || argc < 3 || argc > 7) {
@@ -76,17 +76,17 @@ int main(int argc, char* argv[]) {
     int numAssociativities = 1;
 
     //start a CSV file
-    FILE* file = fopen(csvFileName, "w+");
-    if(file == NULL) {
+    FILE* csvFile = fopen(csvFileName, "w+");
+    if(csvFile == NULL) {
         printf("Error opening %d\n", csvFileName);
         exit(-1);
     }
     //add header row
-    fprintf(file, "Trace File Name, Cache Size, Block Size, Replacement Policy, Associativity"); //basic run info
-    fprintf(file, ", Total Blocks, Tag Size (bits), Index Size (bits), Total Indices, Overhead Memory Size (KB), Implementation Memory Size (KB)"); //calculated values
-    fprintf(file, ", Total Cache Accesses, Cache Hits, Cache Misses, Compulsory Misses, Conflict Misses"); //statistics
-    fprintf(file, ", Hit Rate %%, Miss Rate %%, CPI"); //results
-    fflush(file);
+    fprintf(csvFile, "Trace File Name, Cache Size, Block Size, Replacement Policy, Associativity"); //basic run info
+    fprintf(csvFile, ", Total Blocks, Tag Size (bits), Index Size (bits), Total Indices, Overhead Memory Size (KB), Implementation Memory Size (KB)"); //calculated values
+    fprintf(csvFile, ", Total Cache Accesses, Cache Hits, Cache Misses, Compulsory Misses, Conflict Misses"); //statistics
+    fprintf(csvFile, ", Hit Rate %%, Miss Rate %%, CPI"); //results
+    fflush(csvFile);
 
     int remainingThreads = numThreads;
     pthread_t tid[numThreads];
@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
                         remainingThreads--;
 
                         //check on running threads
-                        if(remainingThreads == 1 || (i == numTraceFileNames - 1 && j == numCacheSizes - 1 && k == numBlockSizes - 1 && l == numReplacementPolicies - 1 && m == numAssociativities - 1)) {
+                        if(remainingThreads <= 1 || (i == numTraceFileNames - 1 && j == numCacheSizes - 1 && k == numBlockSizes - 1 && l == numReplacementPolicies - 1 && m == numAssociativities - 1)) {
                             //wait for threads
                             threadDataBlock* thDt_r[numThreads];
                             for(n=0; n < numThreads && n < numThreads - remainingThreads; n++) {
@@ -139,31 +139,31 @@ int main(int argc, char* argv[]) {
                             //save data from threads
                             for(n=0; n < numThreads && n < numThreads - remainingThreads; n++) {
                                 //save results by adding row to CSV
-                                fprintf(file, "\n");
-                                fprintf(file, "\"%s\", %d, %d, \"%s\", %d", 
+                                fprintf(csvFile, "\n");
+                                fprintf(csvFile, "\"%s\", %d, %d, \"%s\", %d", //basic run info
                                     thDt_r[n]->args->trace_file_name, 
                                     thDt_r[n]->args->cache_size, 
                                     thDt_r[n]->args->block_size, 
                                     thDt_r[n]->args->replacement_policy, 
                                     thDt_r[n]->args->associativity);
-                                fprintf(file, ", %d, %d, %d, %d, %d, %d", 
+                                fprintf(csvFile, ", %d, %d, %d, %d, %d, %d", //calculated values
                                     thDt_r[n]->vars->total_blocks, 
                                     thDt_r[n]->vars->tag_size, 
                                     thDt_r[n]->vars->index_size, 
                                     thDt_r[n]->vars->total_indices, 
                                     thDt_r[n]->vars->overhead_memory_size, 
                                     thDt_r[n]->vars->implementation_memory_size);
-                                fprintf(file, ", %d, %d, %d, %d, %d", 
+                                fprintf(csvFile, ", %d, %d, %d, %d, %d", //statistics
                                     thDt_r[n]->resDt->totalCacheAccesses, 
                                     thDt_r[n]->resDt->cacheHits, 
                                     thDt_r[n]->resDt->totalCacheAccesses - thDt_r[n]->resDt->cacheHits, 
                                     thDt_r[n]->resDt->compulsoryMisses, 
                                     thDt_r[n]->resDt->conflictMisses);
-                                fprintf(file, ", %.1f, %.1f, %.1f", 
+                                fprintf(csvFile, ", %.1f, %.1f, %.1f", //results
                                     thDt_r[n]->vars->cache_hit_rate, 
                                     100 - thDt_r[n]->vars->cache_hit_rate, 
                                     thDt_r[n]->vars->cpi);
-                                fflush(file);
+                                fflush(csvFile);
 
                                 //free dynamically allocated memory
                                 free(thDt_r[n]->resDt->numBlkAcsCntArry);
@@ -183,57 +183,53 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    fclose(file);
+    fclose(csvFile);
     return 0;
 }
 
-resultDataStruct* runProgram(argStruct* args, varStruct* vars) {
+void* programThread(void* threadData) {
+    threadDataBlock* thDt_t = (threadDataBlock*) threadData;
 
     //print output report
-    printf("Trace File: %s\n", args->trace_file_name);
-    printf("Cache Size: %d KB\n", args->cache_size);
-    printf("Block Size: %d bytes\n", args->block_size);
-    printf("Associativity: %d\n", args->associativity);
-    printf("Policy: %s\n\n", args->replacement_policy);
+    printf("Trace File: %s\n", thDt_t->args->trace_file_name);
+    printf("Cache Size: %d KB\n", thDt_t->args->cache_size);
+    printf("Block Size: %d bytes\n", thDt_t->args->block_size);
+    printf("Associativity: %d\n", thDt_t->args->associativity);
+    printf("Policy: %s\n\n", thDt_t->args->replacement_policy);
 
     printf("----- Calculated Value -----\n");
-    printf("Total #Blocks: %d (2^%d)\n", vars->total_blocks, (int) round(log(vars->total_blocks)/log(2)) );
-    printf("Tag Size: %d bits\n", vars->tag_size);
-    printf("Index Size: %d bits, Total Indices: %d\n", vars->index_size, vars->total_indices);
+    printf("Total #Blocks: %d (2^%d)\n", thDt_t->vars->total_blocks, (int) round(log(thDt_t->vars->total_blocks)/log(2)) );
+    printf("Tag Size: %d bits\n", thDt_t->vars->tag_size);
+    printf("Index Size: %d bits, Total Indices: %d\n", thDt_t->vars->index_size, thDt_t->vars->total_indices);
     printf("Overhead Memory Size: %d bytes (or %d KB), Implementation Memory Size: %d (or %d KB)\n\n", 
-        vars->overhead_memory_size, vars->overhead_memory_size/1024, 
-        vars->implementation_memory_size, vars->implementation_memory_size/1024);
+        thDt_t->vars->overhead_memory_size, thDt_t->vars->overhead_memory_size/1024, 
+        thDt_t->vars->implementation_memory_size, thDt_t->vars->implementation_memory_size/1024);
 
     //read in file
-    Queue* fileContents = readFile(args->trace_file_name); //queue consists of (char*) void* to each line
+    Queue* fileContents = readFile(thDt_t->args->trace_file_name); //queue consists of (char*) void* to each line
 
     //process file
     Queue* traceData = convertData(fileContents);
 
     //run simulation
-    resultDataStruct* resDt = runSimulation(traceData, args, vars);
+    thDt_t->resDt = runSimulation(traceData, thDt_t->args, thDt_t->vars);
     
+    //continue printing output report
     printf("----- Simulation Statistics -----\n");
-    printf("Total Cache Accesses:   %d\n", resDt->totalCacheAccesses);
-    printf("Cache Hits:             %d\n", resDt->cacheHits);
-    printf("Cache Misses:           %d\n", resDt->totalCacheAccesses - resDt->cacheHits);
-    printf("--- Compulsory Misses:  %d\n", resDt->compulsoryMisses);
-    printf("--- Conflict Misses:    %d\n\n", resDt->conflictMisses);
+    printf("Total Cache Accesses:   %d\n", thDt_t->resDt->totalCacheAccesses);
+    printf("Cache Hits:             %d\n", thDt_t->resDt->cacheHits);
+    printf("Cache Misses:           %d\n", thDt_t->resDt->totalCacheAccesses - thDt_t->resDt->cacheHits);
+    printf("--- Compulsory Misses:  %d\n", thDt_t->resDt->compulsoryMisses);
+    printf("--- Conflict Misses:    %d\n\n", thDt_t->resDt->conflictMisses);
 
     printf("----- Results -----\n");
-    printf("Cache Hit Rate: %.1f %%\n", vars->cache_hit_rate);
-    printf("Cache Miss Rate: %.1f %%\n", 100 - vars->cache_hit_rate);
-    printf("CPI: %.1f cycles/instruction\n\n", vars->cpi);
+    printf("Cache Hit Rate: %.1f %%\n", thDt_t->vars->cache_hit_rate);
+    printf("Cache Miss Rate: %.1f %%\n", 100 - thDt_t->vars->cache_hit_rate);
+    printf("CPI: %.1f cycles/instruction\n\n", thDt_t->vars->cpi);
 
+    //print divider between runs
     printf("=======================================================================================\n");
     printf("=======================================================================================\n\n");
 
-    return resDt;
-}
-
-void* programThread(void* threadData) {
-    threadDataBlock* thDt_t = (threadDataBlock*) threadData;
-    //run program
-    thDt_t->resDt = runProgram(thDt_t->args, thDt_t->vars);
     return (void*) thDt_t;
 }
