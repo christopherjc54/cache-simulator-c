@@ -158,11 +158,11 @@ int main(int argc, char* argv[]) {
     } showCalculatedValues();
     
     printf("----- Simulation Statistics -----\n");
-    printf("Total Cache Accesses:\t%d\n", resDt->totalCacheAccesses);
-    printf("Cache Hits:\t\t%d\n", resDt->cacheHits);
-    printf("Cache Misses:\t\t%d\n", resDt->totalCacheAccesses - resDt->cacheHits);
-    printf("--- Compulsory Misses:\t%d\n", resDt->compulsoryMisses);
-    printf("--- Conflict Misses:\t%d\n\n", resDt->conflictMisses);
+    printf("Total Cache Accesses:   %d\n", resDt->totalCacheAccesses);
+    printf("Cache Hits:             %d\n", resDt->cacheHits);
+    printf("Cache Misses:           %d\n", resDt->totalCacheAccesses - resDt->cacheHits);
+    printf("--- Compulsory Misses:  %d\n", resDt->compulsoryMisses);
+    printf("--- Conflict Misses:    %d\n\n", resDt->conflictMisses);
 
     printf("----- Results -----\n");
     printf("Cache Hit Rate: %.1f %%\n", vars->cache_hit_rate);
