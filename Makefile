@@ -1,9 +1,13 @@
 all:
 	mkdir -p output > /dev/null
 	gcc src/main.c src/data.c src/queue.c src/simulation.c src/cache.c -o output/sim -lm -w
+	gcc src/main_automated.c src/data.c src/queue.c src/simulation.c src/cache.c -o output/sim_auto -lm -w
 allwarn:
 	mkdir -p output > /dev/null
 	gcc src/main.c src/data.c src/queue.c src/simulation.c src/cache.c -o output/sim -lm
+	gcc src/main_automated.c src/data.c src/queue.c src/simulation.c src/cache.c -o output/sim_auto -lm
+runauto:
+	output/sim_auto -o "output/results.csv" -c "$(CURDIR)" > output/log_auto.txt
 runtiny:
 	output/sim -f "$(CURDIR)/traces/TinyTrace.trc"
 runtest:

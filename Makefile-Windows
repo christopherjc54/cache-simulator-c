@@ -1,9 +1,13 @@
 all:
 	if not exist output mkdir output > NUL
 	gcc src/main.c src/data.c src/queue.c src/simulation.c src/cache.c -o output/Sim.exe -lm -w
+	gcc src/main_automated.c src/data.c src/queue.c src/simulation.c src/cache.c -o output/Sim_Automated.exe -lm -w
 allwarn:
 	if not exist output mkdir output > NUL
 	gcc src/main.c src/data.c src/queue.c src/simulation.c src/cache.c -o output/Sim.exe -lm
+	gcc src/main_automated.c src/data.c src/queue.c src/simulation.c src/cache.c -o output/Sim_Automated.exe -lm
+runauto:
+	"output/Sim_Automated.exe" -o "output/results.csv" -c "$(CURDIR)" > output/log_auto.txt
 runtiny:
 	"output/Sim.exe" -f "$(CURDIR)/traces/TinyTrace.trc"
 runtest:
