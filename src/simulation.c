@@ -20,7 +20,7 @@ void accessCache(cacheStruct* cache, argStruct* args, varStruct* vars, int addre
     resDt->numBlkAcsCntArry[numBlocksAccessed]++;
 
     for(i=0; i < numBlocksAccessed; i++) {
-        rowStruct* row = getRowByIndex(cache, index);
+        rowStruct* row = getRowByIndex(cache, index - 1);
         blockStruct* block = getBlockByTag(row, tag, args->associativity);
 
         //check for hit
@@ -60,12 +60,12 @@ resultDataStruct* runSimulation(Queue* traceData, argStruct* args, varStruct* va
     printf("STARTING SIMULATION\n\n");
 
     //initialize cache
-    cacheStruct* cache = initializeCache(vars->total_indices*1024, args->associativity);
+    cacheStruct* cache = initializeCache(vars->total_indices, args->associativity);
     printf("malloc'd %d rows in cache with %d blocks each (~%d KBs)\n\n", 
-        vars->total_indices*1024, args->associativity, 
+        vars->total_indices, args->associativity, 
         (int) round( (double) (sizeof(cacheStruct) 
-            + (sizeof(rowStruct)*vars->total_indices*1024) 
-            + (sizeof(blockStruct)*args->associativity * (vars->total_indices*1024))) / 1024)); //actual cache implementation size in KB
+            + (sizeof(rowStruct)*vars->total_indices) 
+            + (sizeof(blockStruct)*args->associativity * vars->total_indices)) / 1024)); //actual cache implementation size in KB
 
     int i;
     traceItem* item;
@@ -106,6 +106,7 @@ resultDataStruct* runSimulation(Queue* traceData, argStruct* args, varStruct* va
     vars->cpi = (double) resDt->totalCycles/resDt->totalInstructions;
 
     freeCache(cache);
+    freeQueue(traceData);
     printf("SIMULATION COMPLETE\n\n");
     return resDt;
 }

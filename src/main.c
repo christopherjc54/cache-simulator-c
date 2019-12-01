@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
     void doCacheMath() {
         //initialize variables for output report
         vars = (varStruct*) malloc(sizeof(varStruct));
-        vars->total_blocks = ((args->cache_size*1024) / args->block_size);
+        vars->total_blocks = (args->cache_size*1024) / args->block_size;
         vars->index_size = round(log( (args->cache_size*1024) / (args->associativity * args->block_size) )/log(2)); //bits
         vars->offset_size = round(log(args->block_size)/log(2)); //bits
         vars->tag_size = 32 - vars->offset_size - vars->index_size; //bits
@@ -153,8 +153,8 @@ int main(int argc, char* argv[]) {
         printf("Tag Size: %d bits\n", vars->tag_size);
         printf("Index Size: %d bits, Total Indices: %d\n", vars->index_size, vars->total_indices);
         printf("Overhead Memory Size: %d bytes (or %d KB), Implementation Memory Size: %d (or %d KB)\n\n", 
-            vars->overhead_memory_size*1024, vars->overhead_memory_size, 
-            vars->implementation_memory_size*1024, vars->implementation_memory_size);
+            vars->overhead_memory_size, vars->overhead_memory_size/1024, 
+            vars->implementation_memory_size, vars->implementation_memory_size/1024);
     } showCalculatedValues();
     
     printf("----- Simulation Statistics -----\n");
@@ -170,7 +170,6 @@ int main(int argc, char* argv[]) {
     printf("CPI: %.1f cycles/instruction\n\n", vars->cpi);
 
     //free dynamically allocated memory
-    freeQueue(traceData);
     free(resDt->numBlkAcsCntArry);
     free(resDt);
     free(args);
