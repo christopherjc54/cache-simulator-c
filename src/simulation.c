@@ -19,8 +19,15 @@ void accessCache(cacheStruct* cache, argStruct* args, varStruct* vars, int addre
     }
     resDt->numBlkAcsCntArry[numBlocksAccessed]++;
 
+    int indexStarting = index;
     for(i=0; i < numBlocksAccessed; i++) {
         rowStruct* row = getRowByIndex(cache, index - 1);
+        if(row == NULL) {
+            printf("ERROR: cache overflow, row at zero-indexed %d was null\n", index - 1);
+            printf("Tried reading %d times past index %d.\n", numBlocksAccessed - 1, indexStarting);
+            printf("Skipping remaining reads/writes for cache access.\n\n");
+            break;
+        }
         blockStruct* block = getBlockByTag(row, tag, args->associativity);
 
         //check for hit
