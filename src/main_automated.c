@@ -7,7 +7,7 @@ void handleIncorrectUsage(char* errorMessage) {
 
         printf("-o <csv file name> [ name of text file to output results in csv format ]\n");
         printf("-c <file path> [ current directory file path ]\n");
-        printf("-t <number of threads> [ used to speed up simulations, but breaks logging; keep at 1 for logging ]\n\n");
+        printf("-t <number of threads> [ number of threads, \"optimal\", or \"max\" ]\n\n");
 
         printf("You can use without -c if not using in nested folders.\n");
         printf("You can use without -t. Defaults to 1 thread which allows for proper logging.\n\n");
@@ -35,7 +35,13 @@ int main(int argc, char* argv[]) {
         } else if(strcmp(argv[i], "-c") == 0) {
             currentFilePath = argv[i+1];
         } else if(strcmp(argv[i], "-t") == 0) {
-            numThreads = atoi(argv[i+1]);
+            if(strcmp(argv[i+1], "optimal") == 0) {
+                numThreads = -2;
+            } else if(strcmp(argv[i+1], "max") == 0) {
+                numThreads = -3;
+            } else {
+                numThreads = atoi(argv[i+1]);
+            }
         }
     }
 
@@ -74,6 +80,13 @@ int main(int argc, char* argv[]) {
     //TODO: figure out, not specified in instructions
     int associativities[] = { 2 };
     int numAssociativities = 1;
+
+    //set optimal or max threads if requested
+    if(numThreads == -2) { //optimal
+        numThreads = numCacheSizes * numBlockSizes * numReplacementPolicies * numAssociativities;
+    } else if(numThreads == -3) { //max
+        numThreads = numTraceFileNames * numCacheSizes * numBlockSizes * numReplacementPolicies * numAssociativities;
+    }
 
     //start a CSV file
     FILE* csvFile = fopen(csvFileName, "w+");

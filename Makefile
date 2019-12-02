@@ -9,7 +9,7 @@ allwarn:
 runauto:
 	output/sim_auto -o "output/results.csv" -c "$(CURDIR)" -t 1 > output/log_auto.txt
 runauto-mt:
-	output/sim_auto -o "output/results.csv" -c "$(CURDIR)" -t 8 > /dev/null
+	output/sim_auto -o "output/results.csv" -c "$(CURDIR)" -t optimal > /dev/null
 runtiny:
 	output/sim -f "$(CURDIR)/traces/TinyTrace.trc"
 runtest:
