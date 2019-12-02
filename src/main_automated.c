@@ -132,15 +132,15 @@ int main(int argc, char* argv[]) {
                         //check on running threads
                         if(remainingThreads <= 1 || (i == numTraceFileNames - 1 && j == numCacheSizes - 1 && k == numBlockSizes - 1 && l == numReplacementPolicies - 1 && m == numAssociativities - 1)) {
                             //wait for threads
-                            threadDataBlock* thDt_r[numThreads];
+                            threadDataBlock* thDt_r[numThreads]; //for returned thread data
                             for(n=0; n < numThreads && n < numThreads - remainingThreads; n++) {
-                                pthread_join(tid[n], (threadDataBlock**) &thDt_r[n]);
+                                pthread_join(tid[n], (void**) &thDt_r[n]);
                             }
                             //save data from threads
                             for(n=0; n < numThreads && n < numThreads - remainingThreads; n++) {
                                 //save results by adding row to CSV
                                 fprintf(csvFile, "\n");
-                                fprintf(csvFile, "\"%s\", %d, %d, \"%s\", %d", //basic run info
+                                fprintf(csvFile, "\"%s\", %d, %d, %s, %d", //basic run info
                                     thDt_r[n]->args->trace_file_name, 
                                     thDt_r[n]->args->cache_size, 
                                     thDt_r[n]->args->block_size, 
@@ -188,7 +188,7 @@ int main(int argc, char* argv[]) {
 }
 
 void* programThread(void* threadData) {
-    threadDataBlock* thDt_t = (threadDataBlock*) threadData;
+    threadDataBlock* thDt_t = (threadDataBlock*) threadData; //for thread's thread data
 
     //print output report
     printf("Trace File: %s\n", thDt_t->args->trace_file_name);
