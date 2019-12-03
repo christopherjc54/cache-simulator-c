@@ -3,14 +3,15 @@
 void handleIncorrectUsage(char* errorMessage) {
 
         printf("\n%s Please launch using:\n", errorMessage);
-        printf("Sim_Automated.exe -o results.csv\n\n");
+        printf("Sim_Automated.exe -o results.csv -c \"..\" -t 1\n\n");
 
         printf("-o <csv file name> [ name of text file to output results in csv format ]\n");
         printf("-c <file path> [ current directory file path ]\n");
         printf("-t <number of threads> [ number of threads, \"optimal\", or \"max\" ]\n\n");
 
         printf("You can use without -c if not using in nested folders.\n");
-        printf("You can use without -t. Defaults to 1 thread which allows for proper logging.\n\n");
+        printf("You can use without -t. Defaults to 1 thread which allows for proper logging.\n");
+        printf("Highly recommend piping standard out to log file. If using more than 1 thread, log is only good for errors.\n\n");
 
 }
 
@@ -51,7 +52,8 @@ int main(int argc, char* argv[]) {
         exit(-1);
     }
     if(currentFilePath == NULL) {
-        printf("WARNING: current path not specified, make sure you're running this in the same folder as the traces directory\n\n");
+        printf("WARNING: current path not specified\n");
+        printf("Make sure you're running this in the same folder as the traces directory or go to sub-folder and use -c \"..\" to go up one level and look for it\n\n");
         currentFilePath = "";
     }
     if(numThreads == -1) {
@@ -91,7 +93,7 @@ int main(int argc, char* argv[]) {
     //start a CSV file
     FILE* csvFile = fopen(csvFileName, "w+");
     if(csvFile == NULL) {
-        printf("Error opening %d\n", csvFileName);
+        printf("Error opening %s\n", csvFileName);
         exit(-1);
     }
     //add header row
