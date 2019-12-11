@@ -148,7 +148,7 @@ int main(int argc, char* argv[]) {
                         if(remainingThreads <= 1 || (i == numTraceFileNames - 1 && j == numCacheSizes - 1 && k == numBlockSizes - 1 && l == numReplacementPolicies - 1 && m == numAssociativities - 1)) {
                             //wait for threads
                             threadDataBlock* thDt_r[numThreads]; //for returned thread data
-                            for(n=0; n < numThreads && n < numThreads - remainingThreads; n++) {
+                            for(n=0; n < numThreads - remainingThreads; n++) {
                                 pthread_join(tid[n], (void**) &thDt_r[n]);
                             }
                             //save data from threads
