@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
         exit(-1);
     }
     //add header row
-    fprintf(csvFile, "Trace File Name, Cache Size, Block Size, Replacement Policy, Associativity"); //basic run info
+    fprintf(csvFile, "Trace File Name, Cache Size (KB), Block Size (bytes), Replacement Policy, Associativity"); //basic run info
     fprintf(csvFile, ", Total Blocks, Tag Size (bits), Index Size (bits), Total Indices, Overhead Memory Size (KB), Implementation Memory Size (KB)"); //calculated values
     fprintf(csvFile, ", Total Cache Accesses, Cache Hits, Cache Misses, Compulsory Misses, Conflict Misses"); //statistics
     fprintf(csvFile, ", Hit Rate %%, Miss Rate %%, CPI"); //results
