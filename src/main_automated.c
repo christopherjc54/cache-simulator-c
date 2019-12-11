@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
     }
 
     //set automated parameters
-    //WARNING: no out of bounds checking for automated arguments
+    //WARNING: no out of bounds checking for these
     char* traceFileNames[] = {  "/traces/TinyTrace.trc",
                                 "/traces/TestTrace.trc",
                                 "/traces/Corruption1.trc",
@@ -87,6 +87,7 @@ int main(int argc, char* argv[]) {
     //set optimal or max threads if requested
     if(numThreads == -2) { //optimal
         numThreads = numCacheSizes * numBlockSizes * numReplacementPolicies * numAssociativities;
+        if(numThreads > 32) numThreads = 32; //prevent potential crashes from automatically creating too many threads if parameters are changed
     } else if(numThreads == -3) { //max
         numThreads = numTraceFileNames * numCacheSizes * numBlockSizes * numReplacementPolicies * numAssociativities;
     }
