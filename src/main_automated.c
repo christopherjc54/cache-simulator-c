@@ -62,6 +62,7 @@ int main(int argc, char* argv[]) {
     }
 
     //set automated parameters
+    //WARNING: no out of bounds checking for automated arguments
     char* traceFileNames[] = {  "/traces/TinyTrace.trc",
                                 "/traces/TestTrace.trc",
                                 "/traces/Corruption1.trc",
