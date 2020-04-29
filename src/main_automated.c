@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) {
                                 pthread_join(tid[n], (void**) &thDt_r[n]);
                             }
                             //save data from threads
-                            for(n=0; n < numThreads && n < numThreads - remainingThreads; n++) {
+                            for(n=0; n < numThreads - remainingThreads; n++) {
                                 //save results by adding row to CSV
                                 fprintf(csvFile, "\n");
                                 fprintf(csvFile, "\"%s\", %d, %d, %s, %d", //basic run info
