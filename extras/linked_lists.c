@@ -1,3 +1,8 @@
+/*
+    Author: Jessica Sherette
+    Modified and updated by Christopher Coutinho
+*/
+
 #include "linked_lists.h"
 
 LinkedList *createLinkedList() {
@@ -10,7 +15,10 @@ LinkedList *createLinkedList() {
 }
 
 void freeLinkedList(LinkedList *list) {
-    free(list);
+    int i;
+    for(i=0; i < list->length; i++) {
+        free(getItem(list, i)); //free LLNodes, not data
+    }
 }
 
 LLType getFirst(LinkedList *list) {
@@ -38,7 +46,7 @@ LLType getItem(LinkedList *list, int itemNumber) {
 
 void addItem(LinkedList *list, LLType item) {
     LLNode *node = (LLNode*) malloc(sizeof(LLNode));
-    if(node==NULL) {
+    if(node == NULL) {
         printf("Failed to allocate memory.\n");
         exit(-1);
     }

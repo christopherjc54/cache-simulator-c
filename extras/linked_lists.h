@@ -1,3 +1,8 @@
+/*
+    Author: Jessica Sherette
+    Modified and updated by Christopher Coutinho
+*/
+
 #ifndef _linked_lists_h
 #define _linked_lists_h
 
@@ -5,7 +10,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define LLType char*
+//set LLType here (i.e. char*)
+#define LLType void*
 
 typedef struct LLNode {
     LLType data;            //LLType data contained in this node
@@ -18,7 +24,7 @@ typedef struct LinkedList {
 } LinkedList;
 
 LinkedList *createLinkedList();
-void freeLinkedList(LinkedList *list);  //NOT memory leak safe
+void freeLinkedList(LinkedList *list); //does NOT free data contents
 
 LLType getFirst(LinkedList *list);
 LLType getItem(LinkedList *list, int itemNumber);
