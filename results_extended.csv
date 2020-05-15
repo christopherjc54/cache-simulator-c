@@ -1,4 +1,4 @@
-Trace File Name, Cache Size, Block Size, Replacement Policy, Associativity, Total Blocks, Tag Size (bits), Index Size (bits), Total Indices, Overhead Memory Size (KB), Implementation Memory Size (KB), Total Cache Accesses, Cache Hits, Cache Misses, Compulsory Misses, Conflict Misses, Hit Rate %, Miss Rate %, CPI
+Trace File Name, Cache Size (KB), Block Size (bytes), Replacement Policy, Associativity, Total Blocks, Tag Size (bits), Index Size (bits), Total Indices, Overhead Memory Size (KB), Implementation Memory Size (KB), Total Cache Accesses, Cache Hits, Cache Misses, Compulsory Misses, Conflict Misses, Hit Rate %, Miss Rate %, CPI
 "TinyTrace.trc", 8, 4, RR, 1, 2048, 19, 11, 2048, 5120, 13312, 10, 4, 6, 6, 0, 40.0, 60.0, 4.4
 "TinyTrace.trc", 8, 4, RR, 2, 2048, 20, 10, 1024, 5376, 13568, 10, 4, 6, 6, 0, 40.0, 60.0, 4.4
 "TinyTrace.trc", 8, 4, RR, 4, 2048, 21, 9, 512, 5632, 13824, 10, 4, 6, 6, 0, 40.0, 60.0, 4.4
