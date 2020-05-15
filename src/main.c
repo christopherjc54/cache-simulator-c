@@ -22,7 +22,8 @@ int main(int argc, char* argv[]) {
     auto void showCalculatedValues();
 
     //check for correct usage
-    if((argc % 2 == 0 || argc < 3 || argc > 11) && argc != 1) {
+    int maxArgs = 5;
+    if((argc % 2 == 0 || argc < 3 || argc > 1 + (maxArgs * 2)) && argc != 1) {
         handleIncorrectUsage("Invalid number of arguments.");
         exit(-1);
     }

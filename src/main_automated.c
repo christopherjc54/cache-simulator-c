@@ -19,7 +19,8 @@ int main(int argc, char* argv[]) {
     int i, j, k, l, m, n;
 
     //handle incorrect usage
-    if(argc % 2 == 0 || argc < 3 || argc > 7) {
+    int maxArgs = 3;
+    if(argc % 2 == 0 || argc < 3 || argc > 1 + (maxArgs * 2)) {
         handleIncorrectUsage("Invalid number of arguments.");
         exit(-1);
     }
@@ -77,10 +78,9 @@ int main(int argc, char* argv[]) {
     int blockSizes[] = { 4, 16, 64 }; //in bytes
     int numBlockSizes = 3;
     
-    char* replacementPolicies[] = { "RR", "RND" };
-    int numReplacementPolicies = 2;
+    char* replacementPolicies[] = { "RR", "RND", "LRU" };
+    int numReplacementPolicies = 3;
 
-    //TODO: figure out, not specified in instructions
     int associativities[] = { 2 };
     int numAssociativities = 1;
 
