@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "main.h"
+#include "main_shared.h"
 #include "queue.h"
 #include "cache.h"
 #include "data.h"

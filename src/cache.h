@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "main.h"
+#include "main_shared.h"
 
 typedef struct rowStruct rowStruct;
 typedef struct blockStruct blockStruct;

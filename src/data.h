@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include "queue.h"
-#include "main.h"
+#include "main_shared.h"
 
 #define ssize_t signed long long //isn't defined in my compiler's libraries for some reason, but size_t is??
 
