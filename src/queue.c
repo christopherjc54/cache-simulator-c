@@ -87,7 +87,7 @@ void enqueue(Queue *pq, queueType qt) {
         exit(-1);
     }
 
-    node->pNext=NULL;
+    node->pNext = NULL;
     node->qt = qt;
     if(isEmpty(pq)) {
         pq->qFront = node;
