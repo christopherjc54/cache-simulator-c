@@ -41,8 +41,7 @@ void freeQueue(Queue *pq) {
  * Returns the process stored at the front of the Queue.  It does not remove the element from the queue.
  */
 queueType getNext(Queue *pq) {
-    if(isEmpty(pq))
-    {
+    if(isEmpty(pq)) {
         /* no element to return */
         return NULL;
     }
@@ -83,7 +82,7 @@ queueType dequeue( Queue *pq ) {
  */
 void enqueue(Queue *pq, queueType qt) {
     LLNode *node = (LLNode*) malloc(sizeof(LLNode));
-    if(node == NULL){
+    if(node == NULL) {
         fprintf(stderr, "enqueue: Failed to allocate memory");
         exit(-1);
     }
